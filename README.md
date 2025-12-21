@@ -161,6 +161,58 @@ Port: 3128
 
 ---
 
+## 🚀 One-line run (recommended)
+
+```bash
+docker run -d --name vpnproxy \
+  --cap-add=NET_ADMIN \
+  --device /dev/net/tun \
+  -p 3128:3128 \
+  -v "$(pwd)/ovpn:/ovpn:ro" \
+  moosavimaleki/openvpn-squid-proxy:latest
+```
+
+---
+
+## قبل از اجرا فقط اینو آماده کن
+
+در کنار این دستور، کاربر فقط باید این پوشه رو داشته باشه:
+
+```
+ovpn/
+├── client.ovpn
+└── auth.txt
+```
+
+### auth.txt
+
+```
+USERNAME
+PASSWORD
+```
+
+---
+
+## بعد از اجرا (تست فوری)
+
+```bash
+curl -x http://127.0.0.1:3128 https://ifconfig.me
+```
+
+اگر IP مربوط به VPN بود → همه‌چی اوکیه ✅
+
+---
+
+## این دستور دقیقاً چی کار می‌کنه؟
+
+* `--cap-add=NET_ADMIN` → اجازه ساخت تونل VPN
+* `--device /dev/net/tun` → فعال‌سازی TUN device
+* `-p 3128:3128` → در دسترس بودن پروکسی
+* `-v ./ovpn:/ovpn:ro` → لود کانفیگ VPN
+* `moosavimaleki/openvpn-squid-proxy:latest` → ایمیج آماده
+ 
+---
+
 ## Important Notes
 
 ### 🔐 Security
