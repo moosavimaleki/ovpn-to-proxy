@@ -1,0 +1,13 @@
+services:
+  vpnproxy:
+    build: .
+    container_name: vpnproxy
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - "3128:3128"
+    volumes:
+      - ./ovpn:/ovpn:ro
+    restart: unless-stopped
