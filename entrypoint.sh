@@ -92,4 +92,7 @@ iptables -A OUTPUT -o tun0 -j ACCEPT
 iptables -A INPUT  -i tun0 -j ACCEPT
 
 echo "[+] Starting Squid..."
+mkdir -p /var/run /var/log/squid /var/cache/squid
+rm -f /var/run/squid.pid /run/squid.pid /var/run/squid.pid
+
 exec squid -N -f /etc/squid/squid.conf

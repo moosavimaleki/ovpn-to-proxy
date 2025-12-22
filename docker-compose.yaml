@@ -11,3 +11,10 @@ services:
     volumes:
       - ./ovpn:/ovpn:ro
     restart: unless-stopped
+    networks:
+      - vpnet
+
+networks:
+  vpnet:
+    external: true
+    name: vpnet
