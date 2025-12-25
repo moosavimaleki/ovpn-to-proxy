@@ -1,7 +1,7 @@
 FROM alpine:3.20
 
 RUN apk add --no-cache \
-    openvpn iptables iproute2 ca-certificates bash squid tzdata curl \
+    openvpn iptables iproute2 ca-certificates bash squid tzdata curl bc \
  && update-ca-certificates
 
 # Squid config + entrypoint

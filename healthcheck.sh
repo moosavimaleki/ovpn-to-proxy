@@ -36,7 +36,25 @@ while true; do
             echo "[$(date '+%Y-%m-%d %H:%M:%S')] [HealthCheck] Connection recovered."
         fi
         CONSECUTIVE_FAILURES=0
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [HealthCheck] Connection OK: $STATS"
+
+        # Parse metrics for human-readable output
+        HTTP_CODE=$(echo "$STATS" | grep -o 'HTTP_CODE=[^ ]*' | cut -d= -f2)
+        TIME_TOTAL=$(echo "$STATS" | grep -o 'TIME_TOTAL=[^ ]*' | cut -d= -f2 | sed 's/s//')
+        TIME_CONNECT=$(echo "$STATS" | grep -o 'TIME_CONNECT=[^ ]*' | cut -d= -f2 | sed 's/s//')
+        SPEED_BYTES=$(echo "$STATS" | grep -o 'SPEED=[^ ]*' | cut -d= -f2 | sed 's/B\/s//')
+
+        # Convert speed to KB/s or MB/s
+        if (( $(echo "$SPEED_BYTES > 1048576" | bc -l) )); then
+            SPEED_HUMAN=$(echo "scale=2; $SPEED_BYTES / 1048576" | bc -l) MB/s
+        else
+            SPEED_HUMAN=$(echo "scale=2; $SPEED_BYTES / 1024" | bc -l) KB/s
+        fi
+
+        # Format times to 3 decimal places
+        TIME_TOTAL_FMT=$(printf "%.3f" "$TIME_TOTAL")
+        TIME_CONNECT_FMT=$(printf "%.3f" "$TIME_CONNECT")
+
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [HealthCheck] OK | HTTP:$HTTP_CODE | Total:${TIME_TOTAL_FMT}s | Connect:${TIME_CONNECT_FMT}s | Speed:$SPEED_HUMAN"
     fi
     
     sleep $PERIOD
