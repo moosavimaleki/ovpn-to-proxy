@@ -7,7 +7,8 @@ RUN apk add --no-cache \
 # Squid config + entrypoint
 COPY squid.conf /etc/squid/squid.conf
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh \
+COPY healthcheck.sh /healthcheck.sh
+RUN chmod +x /entrypoint.sh /healthcheck.sh \
  && mkdir -p /run/openvpn /var/log/squid /var/cache/squid \
  && chown -R squid:squid /var/log/squid /var/cache/squid
 

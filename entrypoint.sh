@@ -95,4 +95,7 @@ echo "[+] Starting Squid..."
 mkdir -p /var/run /var/log/squid /var/cache/squid
 rm -f /var/run/squid.pid /run/squid.pid /var/run/squid.pid
 
+# Start healthcheck in background
+/healthcheck.sh &
+
 exec squid -N -f /etc/squid/squid.conf
