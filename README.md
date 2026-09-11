@@ -232,6 +232,15 @@ curl -x http://127.0.0.1:3128 https://ifconfig.me
 * If the VPN tunnel goes down, **all outbound traffic is blocked**
 * No traffic leaks outside the VPN
 
+### Healthcheck URL
+
+The healthcheck sends a request through Squid every few seconds. To avoid a
+fixed external dependency, put one URL on the first non-empty line of
+`ovpn/healthchek.txt` (for example `https://your-internal-health-endpoint/`).
+The file is optional; if it is absent or empty, the default is
+`http://www.google.com`. You can also override it with `CHECK_URL` or
+`HEALTHCHECK_URL`, and change the file path with `CHECK_URL_FILE`.
+
 ---
 
 ## Ports
@@ -269,7 +278,6 @@ Possible future additions:
 
 * SOCKS5 proxy (1080)
 * Proxy authentication
-* Healthcheck endpoint
 * Multi-arch builds (amd64 / arm64)
 
 ---
