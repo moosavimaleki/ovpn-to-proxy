@@ -5,9 +5,9 @@ OVPN_FILE="${OVPN_FILE:-/ovpn/client.ovpn}"
 AUTH_FILE="${AUTH_FILE:-/ovpn/auth.txt}"
 PROXY_PORT="${PROXY_PORT:-3128}"
 
-# (اختیاری) اگر OpenVPN جدید باشه، cipher قدیمی ممکنه نیاز به fallback داشته باشه
-# این‌ها بی‌خطرن و کمک می‌کنن:
-OPENVPN_EXTRA="${OPENVPN_EXTRA:---data-ciphers AES-128-CBC --data-ciphers-fallback AES-128-CBC}"
+# Do not override cipher negotiation by default: the supplied .ovpn profile is
+# authoritative. These variables are opt-in escape hatches for a known legacy
+# provider, not defaults that would break another provider's profile.
 
 echo "[+] Fixing DNS resolv.conf ..."
 cat >/etc/resolv.conf <<'EOF'
@@ -36,14 +36,22 @@ OPENVPN_ARGS=( --config "$OVPN_FILE" --auth-nocache --verb 3 )
 if [[ -f "$AUTH_FILE" ]]; then
   OPENVPN_ARGS+=( --auth-user-pass "$AUTH_FILE" )
 else
-  # اگر auth-user-pass داخل کانفیگ هست ولی فایل ندادی، داخل کانتینر prompt ممکن نیست
-  echo "[-] auth.txt not found at $AUTH_FILE (needed for auth-user-pass)."
-  exit 1
+  echo "[+] auth.txt not found; using the authentication configured by the .ovpn profile."
+fi
+if [[ -n "${OPENVPN_DATA_CIPHERS:-}" ]]; then
+  OPENVPN_ARGS+=( --data-ciphers "$OPENVPN_DATA_CIPHERS" )
+fi
+if [[ -n "${OPENVPN_DATA_CIPHERS_FALLBACK:-}" ]]; then
+  OPENVPN_ARGS+=( --data-ciphers-fallback "$OPENVPN_DATA_CIPHERS_FALLBACK" )
+fi
+if [[ -n "${OPENVPN_EXTRA:-}" ]]; then
+  read -r -a OPENVPN_EXTRA_ARGS <<<"$OPENVPN_EXTRA"
+  OPENVPN_ARGS+=( "${OPENVPN_EXTRA_ARGS[@]}" )
 fi
 
 echo "[+] Starting OpenVPN (foreground logs)..."
 # openvpn رو daemon نکنیم تا لاگ واضح ببینی
-openvpn "${OPENVPN_ARGS[@]}" $OPENVPN_EXTRA \
+openvpn "${OPENVPN_ARGS[@]}" \
   --log /dev/stdout \
   --writepid /run/openvpn.pid \
   --daemon

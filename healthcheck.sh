@@ -45,9 +45,9 @@ while true; do
 
         # Convert speed to KB/s or MB/s
         if (( $(echo "$SPEED_BYTES > 1048576" | bc -l) )); then
-            SPEED_HUMAN=$(echo "scale=2; $SPEED_BYTES / 1048576" | bc -l) MB/s
+            SPEED_HUMAN="$(echo "scale=2; $SPEED_BYTES / 1048576" | bc -l) MB/s"
         else
-            SPEED_HUMAN=$(echo "scale=2; $SPEED_BYTES / 1024" | bc -l) KB/s
+            SPEED_HUMAN="$(echo "scale=2; $SPEED_BYTES / 1024" | bc -l) KB/s"
         fi
 
         # Format times to 3 decimal places

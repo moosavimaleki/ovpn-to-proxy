@@ -1,0 +1,5 @@
+ovpn/
+*.ovpn
+auth.txt
+.git/
+.gitignore
