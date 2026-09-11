@@ -7,14 +7,7 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
-      - "3128:3128"
+      - "127.0.0.1:3128:3128"
     volumes:
       - ./ovpn:/ovpn:ro
     restart: unless-stopped
-    networks:
-      - vpnet
-
-networks:
-  vpnet:
-    external: true
-    name: vpnet

@@ -223,18 +223,33 @@ curl -x http://127.0.0.1:3128 https://ifconfig.me
 
 ### 🧠 DNS handling
 
-* Docker DNS (`127.0.0.11`) breaks after OpenVPN `redirect-gateway`
-* The container explicitly sets public DNS servers internally
-* Prevents DNS failures and common 503 proxy errors
+* Docker DNS is preserved until the tunnel is ready
+* VPN-pushed DNS servers and search domains are applied automatically on
+  `route-up`, then the original resolver is restored on disconnect
 
 ### 🔁 Kill-switch
 
 * If the VPN tunnel goes down, **all outbound traffic is blocked**
 * No traffic leaks outside the VPN
+* The VPN endpoint is pinned through OpenVPN's portable `remote_host` and
+  `net_gateway` route keywords, so pushed routes cannot loop the control
+  connection back into its own tunnel
+* No VPN server IP, port, protocol, or hostname is hard-coded by the image
+
+The image uses OpenVPN's own `remote_host` and `net_gateway` keywords, so a
+hostname, a changed endpoint, and failover remotes stay outside the tunnel even
+when the server pushes an overlapping route. Set `PIN_REMOTE_ROUTE=false` only
+for a profile that deliberately manages this itself. `CONTAINER_INTERFACE` is
+available as an override when Docker uses an unusual network interface.
+
+Squid starts only from OpenVPN's `route-up` hook after firewall rules are in
+place; it is stopped in `route-pre-down` before the tunnel is removed. OpenVPN
+remains the main process, so every `.ovpn` profile controls its own reconnect,
+protocol, cipher, and routing behaviour.
 
 ### Healthcheck URL
 
-The healthcheck sends a request through Squid every few seconds. To avoid a
+Docker runs a one-shot healthcheck through Squid. To avoid a
 fixed external dependency, put one URL on the first non-empty line of
 `ovpn/healthchek.txt` (for example `https://your-internal-health-endpoint/`).
 The file is optional; if it is absent or empty, the default is
